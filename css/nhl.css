@@ -1,0 +1,20 @@
+body
+{
+  background-color: rgb(232, 239, 254);
+}
+
+td { 
+  height: "10%";
+  border:  transparent black; 
+  border-collapse: collapse;
+  font-size: 100%;
+}
+
+#page-header {
+  color: rgba(57, 60, 197, 1.0);
+  text-align: left;
+  font-weight: bold;
+  font-size: 200%;
+  border-bottom: .2em solid #4ca;
+  margin-bottom: .5em;
+}

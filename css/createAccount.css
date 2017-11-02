@@ -1,0 +1,30 @@
+#page-header {
+  color: rgba(57, 60, 197, 1.0);
+  text-align: left;
+  font-weight: bold;
+  font-size: 200%;
+  border-bottom: .2em solid #4ca;
+  margin-bottom: .5em;
+}
+
+body { 
+  background-color: rgb(232, 239, 254);
+}
+
+/*
+label{
+display:inline-block;
+width:200px;
+margin-right:30px;
+text-align:right;
+}
+
+input{
+
+}
+
+fieldset{
+border:none;
+width:500px;
+margin:0px auto;
+}*/

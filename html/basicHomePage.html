@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html class="html">
+  <head>
+    <title>Flyer Picks</title>
+    <link rel="stylesheet" type="text/css" href="css/table.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"> 
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="716183491616-t8qslj7r9p34kibp1f48r31gjf446pob.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script> 
+  <h1 id="page-header">Flyer Picks <img src="images/logo_33x32.png"></h1>
+
+  <div id="login status">
+      <div id="tablediv">
+        <table id="home-table" width="100%" height ="100%">
+          <tbody>
+            <tr>
+              <th>Sports</th>
+              <td><a href="nhl" id="nhl">NHL</a></td>
+              <td><a href="nba" id="nba">NBA</a></td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+    <div>
+      <p></p><p></p>
+      {% if gae_status == False %} 
+        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        <script type="text/javascript" src="scripts/login.js"></script>
+      {% else %}
+        <form action="/" method="post">
+        <input type="submit" value="log out" 
+         name="log_out" id="logout_btn" />
+      {% endif %}
+</form>
+    </div>
+
+  </div>
+</html>

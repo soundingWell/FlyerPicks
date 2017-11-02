@@ -1,0 +1,65 @@
+#home-table {
+  font: 100% sans-serif;
+  background-color: rgba(0, 128, 128, .2);
+  empty-cells: show;
+  border: 5px solid rgba(0, 128, 128, 1);
+  opacity: 1.0;
+}
+
+#home-table > caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: bold;
+  font-size: 200%;
+  border-bottom: .2em solid #4ca;
+  margin-bottom: .5em;
+}
+
+#page-header {
+  color: rgba(57, 60, 197, 1.0);
+  text-align: left;
+  font-weight: bold;
+  font-size: 200%;
+  border-bottom: .2em solid #4ca;
+  margin-bottom: .5em;
+}
+
+a:link { 
+  font-weight: bold;
+  font: "Courier";
+  font-size: 100%;
+  color: black;
+}
+
+a:visited {
+  color: gray;
+}
+
+a:active {
+  color: rgb(0, 128, 128);
+}
+
+th {
+    border: solid #4ca; 
+    height:"400%";
+}
+
+tr {
+    border: solid #4ca; 
+    height: "400%";
+}
+
+td { 
+  height: "400%";
+  border:  solid #4ca; 
+  border-collapse: collapse;
+  font-size: 100%;
+  text-align: center;
+}
+
+body { 
+  background-color: rgb(232, 239, 254);
+}
+
+
+}

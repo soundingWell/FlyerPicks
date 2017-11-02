@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>NHL Lines</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"> 
+<link rel="stylesheet" type="text/css" href="css/nhl.css">
+<body>
+<h1 id="page-header">Flyer Picks <img src="images/logo_33x32.png"></h1>
+<script type="text/javascript">
+
+    var categories = ["Time", "Teams", "Spread/Odds", "Moneyline", "Score"];
+    // create header for lines table
+    var createHeader = function() { 
+      
+      var header = document.createElement('thead');
+      var table_head = document.createElement('tr'); // Creating the row
+      
+      for (i = 0; i < categories.length; i++) {
+          var curr_cell = document.createElement('td');
+          curr_cell.innerHTML= "<b>" + categories[i] + "</b>";
+          curr_cell.style.color= "red";
+          table_head.appendChild(curr_cell);   
+      }
+      
+      header.appendChild(table_head);
+
+      return header;
+    }
+    
+    var curr_bets = [];
+    
+    var valid_bet = function(pick) { 
+      
+      if (curr_bets[pick] == true) {
+        document.write("Can't make that bet twice");
+        return false;
+      }
+      
+      else {
+        curr_bets[pick] = true;
+        return true;
+      }
+    }
+    
+     var send_pick = function(jBet_dict, bet_amt) {
+        // var pick_json = JSON.stringify({pick: pick, spread: spread, bet_amount: bet_amount});
+        // window.console.log('bet amt' + bet_amt);
+        var bet_dict = JSON.parse(jBet_dict);
+        bet_dict['bet_amt'] = bet_amt;
+
+        
+        jBet_dict = JSON.stringify(bet_dict);
+        
+        $.ajax({
+            type: "POST",
+            url: "/nhl",
+            dataType: "json",
+            data: jBet_dict,
+            success: function (data) {
+                window.location.replace("/about");
+            },
+            error: function () {
+               window.location.replace("/profile");
+            }
+        });
+    }
+    
+    var bet_slip = function(jBet_dict) { 
+       var bet_dict = JSON.parse(jBet_dict);
+       
+       if (valid_bet(bet_dict.pick) == true)
+       {
+         if (Object.keys(curr_bets).length <= 1) { 
+           //var t = document.createTextNode("Bet Slip");
+           // document.body.appendChild(t);
+           // TODO NEW LINE
+         }
+         
+         window.console.log(bet_dict.pick);
+         var t = document.createTextNode(bet_dict.pick + " " + bet_dict.odds + " ");
+         document.body.appendChild(t);
+         var bet_amt_text = document.createElement("INPUT");
+         bet_amt_text.setAttribute("type", "text");
+         bet_amt_text.placeholder = "bet amount $";
+         bet_amt_text.id = bet_dict.pick + "txt";
+         document.body.appendChild(bet_amt_text); 
+         
+         // ---- make bet btn
+         var make_bet_btn = document.createElement("BUTTON"); // Create a <button> element
+         var t = document.createTextNode("Make Bet");  
+        
+         // The id of the button is the pick name
+         make_bet_btn.id = bet_dict.pick;
+         
+         // Pass along the bet_info in JSON form 
+         make_bet_btn.value = jBet_dict; 
+        
+         make_bet_btn.onclick = function() { 
+           send_pick(this.value, document.getElementById(this.id + "txt").value); 
+         };
+         
+         make_bet_btn.appendChild(t);  
+         document.body.appendChild(make_bet_btn);
+       }
+    }
+    
+    var create_date_row = function(tbl, date) { 
+      var date_row = document.createElement('tr');
+      var date_cell = document.createElement('td');
+      date_cell.innerHTML= "<b>" + date + "</b>";
+      date_cell.colSpan="5";
+      date_cell.height = 10;
+      date_row.appendChild(date_cell);
+    
+      tbl.appendChild(date_row);
+    }
+    
+    var create_time_cell = function(row, time, game_status) {
+      var time_cell = document.createElement('td');
+      time_cell.style.color = "Green";
+      if (game_status != "Open")
+        time_cell.style.color = "Gray";
+      time_cell.innerHTML= "<b>" + time + "</b>";
+      time_cell.rowSpan = "2";
+      time_cell.align = "CENTER";
+      row.appendChild(time_cell);
+    }
+    
+    var add_text_cell = function (text, row, game_status) { 
+      var pick_cell = document.createElement('td');
+      if (game_status != "Open")
+        pick_cell.style.color = "gray";
+      pick_cell.innerHTML=text;   
+      row.appendChild(pick_cell);
+    }
+    
+    var add_button_cell = function (pick, value, event_id, bet_type, row, disabled) { 
+      var btn = document.createElement("BUTTON"); // Create a <button> element
+      var btn_cell = document.createElement('td');
+
+      var bet_dict = {};
+      bet_dict['odds'] = value;
+      bet_dict['pick'] = pick;
+      bet_dict['event_id'] = event_id;
+      bet_dict['bet_type'] = bet_type;
+      window.console.log('odds' + bet_dict['odds']);
+      bet_json = JSON.stringify(bet_dict);
+      
+      btn.innerHTML=value;
+      btn.id = pick;
+      btn.value = bet_json;
+
+      btn.onclick = function() { bet_slip(this.value); };
+
+      if (disabled)
+        btn.disabled = true;
+      btn_cell.appendChild(btn);
+      row.appendChild(btn_cell);
+    }
+    
+    var create_row = function (competitor, event_id, game_status, row) { 
+      var b_disabled = false;
+      
+      if (game_status != "Open")
+        b_disabled = true; 
+        
+      if (competitor.name) 
+        add_text_cell(competitor.name, row, game_status);
+      else 
+        add_text_cell("N/A", row, game_status);
+    
+        
+      if (competitor.spread && b_disabled) 
+          add_button_cell(competitor.name, competitor.spread, event_id, "ats", row, b_disabled);
+      else if (competitor.spread && b_disabled == false) 
+          add_button_cell(competitor.name, competitor.spread, event_id, "ats", row, false);
+      else 
+        add_button_cell("-", "-", 0, "None", row, true);  
+        
+      if (competitor.moneyline && b_disabled)
+          add_button_cell(competitor.name, competitor.moneyline, event_id, "moneyline", row, b_disabled);
+      else if (competitor.moneyline && b_disabled == false) 
+          add_button_cell(competitor.name, competitor.moneyline, event_id, "moneyline", row, false);
+      else 
+        add_button_cell("-", "-", 0, "None", row, true);
+    
+      if (competitor.score) 
+        add_text_cell(competitor.score, row, "Open");
+      else 
+        add_text_cell("-", row, game_status); 
+    }
+
+    var display_table = function(data_str) { 
+ 
+      var tbl= document.createElement('table');
+      tbl.style.width='100%';
+      tbl.setAttribute('border', '1');
+      tbl.cellPadding = "3";
+      tbl.cellSpacing = "3";
+      tbl.appendChild(createHeader());
+      var game_status = "Open";
+
+      for (date_obj in data_str) {   // date_0, date_1, etc...
+        for (date in data_str[date_obj]) { // date, event_0, event_1, etc...
+          var table_row = document.createElement('tr'); // Creating a New Row
+          var table_row_1 = document.createElement('tr'); // Create competitor row
+            
+          game_status = data_str[date_obj][date].game_status;
+          if (date == "date") 
+            create_date_row(tbl, data_str[date_obj][date]);
+          else { 
+            create_time_cell(table_row, data_str[date_obj][date].time, game_status); 
+            
+            if (data_str[date_obj][date].competitor_0 && data_str[date_obj][date].competitor_1) {
+              var event_id = data_str[date_obj][date].ID;
+              var event_status = game_status;
+              
+              create_row(data_str[date_obj][date].competitor_0, event_id, event_status, table_row);
+              create_row(data_str[date_obj][date].competitor_1, event_id, event_status, table_row_1);
+            
+              tbl.appendChild(table_row);
+              tbl.appendChild(table_row_1);
+            }
+          }
+        }
+      }
+        document.body.appendChild(tbl);
+    }
+    
+     window.onload = function() {
+
+      var json_string = {{rah|safe}};
+      display_table(json_string);
+    };
+
+</script>
+
+
+</body>
+
+</html>
