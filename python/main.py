@@ -97,8 +97,8 @@ class MainPage(webapp2.RequestHandler):
             
         
     def get(self):
-        self.response.write("bad")
         '''
+        self.response.write("bad")
         ls = login_status()
         self.handle_account(ls['gae_status'], ls['flyer_status'])
         
@@ -114,6 +114,12 @@ class MainPage(webapp2.RequestHandler):
         else:
             self.redirect('/createAccount')
         '''
+        template_values = {
+                'flyer_status': False,
+                'gae_status': False
+        }
+        path = 'html/basicHomePage.html'
+        self.response.out.write(template.render(path, template_values))
         
     def post(self):
         # The user hit logout. They need to login. 
