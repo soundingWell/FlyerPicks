@@ -2,91 +2,23 @@ application: fanbet-mia-101
 version: 1
 runtime: python27
 api_version: 1
-threadsafe: true
+threadsafe: false
 
 handlers:
-  
 - url: /css
   static_dir: css
-  
+
 - url: /images
   static_dir: images
   
 - url: /scripts
   static_dir: scripts
-  
-#- url: /.*
-#  script: main.application
-#  login: required
-  #auth_fail_action: unauthorized
-  
-- url: /
-  script: main.application
-  
-- url: /login
-  script: main.application
-  
-- url: /authenticated
-  script: main.application
-  
-- url: /logout
-  script: main.application
-  login: required
-  
-- url: /forgotpassword
-  script: main.application
-  login: required
-  
-- url: /resetpassword
-  script: main.application
-  login: required
-  
-- url: /about
-  script: main.application
-  login: required
-  
-- url: /deleteProfiles
-  script: main.application
-  login: required
-  auth_fail_action: unauthorized
-  
-- url: /createAccount
-  script: main.application
-  
-- url: /profile
-  script: main.application
-  
-- url: /nfl
-  script: main.application
-  login: required
-  auth_fail_action: unauthorized
 
-- url: /nhl
-  script: main.application
-  #login: required
-  auth_fail_action: unauthorized
-  
-- url: /mlb
-  script: main.application
-  #login: required
-  auth_fail_action: unauthorized
-  
-- url: /nba
-  script: main.application
-  #login: required
-  #auth_fail_action: unauthorized
-  
-- url: /ncb
-  script: main.application
+- url: /.*
+  script: python/main.py
   login: required
-  auth_fail_action: unauthorized
   
-- url: /startChecking 
-  script: main.application
-  login: required
-  auth_fail_action: unauthorized
-  
-  
+
 libraries:
 - name: webapp2
   version: latest

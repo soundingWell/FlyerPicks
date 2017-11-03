@@ -13,7 +13,6 @@
     var categories = ["Time", "Teams", "Spread/Odds", "Moneyline", "Score"];
     // create header for lines table
     var createHeader = function() { 
-      
       var header = document.createElement('thead');
       var table_head = document.createElement('tr'); // Creating the row
       
@@ -230,7 +229,6 @@
     }
     
      window.onload = function() {
-
       var json_string = {{rah|safe}};
       display_table(json_string);
     };
