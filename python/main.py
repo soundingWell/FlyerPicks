@@ -4,9 +4,6 @@
 import sys
 sys.path.append('python/')
 
-import cgi
-import os 
-import sys
 
 # My Stuff
 ##########
@@ -69,8 +66,10 @@ class AboutHandler(webapp2.RequestHandler):
         current_user = session['me']
         print 'curr: '
         print current_user.m_balance
-        #template = JINJA_ENVIRONMENT.get_template('html/login.html')
-        #self.response.write(template.render())
+        
+        template_values = {}
+        path = 'html/login.html'
+        self.response.out.write(template.render(path, template_values))
         
 class MainPage(webapp2.RequestHandler):
     def handle_account(self, gae_status, flyer_status):
@@ -106,9 +105,12 @@ class MainPage(webapp2.RequestHandler):
         print 'flyer_status: ' + str(ls['flyer_status'])
         print 'gae_status: ' + str(ls['gae_status'])
         if ls['gae_status']: 
-            template = JINJA_ENVIRONMENT.get_template('html/basicHomePage.html')
-            self.response.write(template.render(flyer_status=ls['flyer_status'], 
-                                            gae_status=ls['gae_status']))
+            template_values = {
+                'flyer_status': ls['flyer_status'],
+                'gae_status': ls['gae_status']
+            }
+            path = 'html/basicHomePage.html'
+            self.response.out.write(template.render(path, template_values))
         else:
             self.redirect('/createAccount')
         '''
@@ -211,7 +213,6 @@ application = webapp2.WSGIApplication([
  
 def main():
     run_wsgi_app(application)
-
 
 if __name__ == "__main__":
     main()

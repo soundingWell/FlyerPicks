@@ -12,15 +12,14 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 
-from apiclient.discovery import build
-import httplib2
+#from apiclient.discovery import build
+#import httplib2
 
 from oauth2client import client, crypt 
 ##########
 
 # Web Stuff
 ##########
-import jinja2
 import webapp2
 from webapp2 import Response
 ##########
@@ -47,10 +46,6 @@ valid_emails = {
     'AK' : 'a.k'
     }
 
-JINJA_ENVIRONMENT = jinja2.Environment(
-                                       loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-                                       extensions=['jinja2.ext.i18n'],
-                                       autoescape=True)
 
 DEFAULT_NICKNAME= "no_name"
 
@@ -170,8 +165,10 @@ def checkDuplicateTeamName(team_name):
 
 class CreateAccount(webapp2.RequestHandler):
     def get(self):
-        template = JINJA_ENVIRONMENT.get_template('html/createAccount.html')
-        self.response.write(template.render())
+        template_values = {}
+        path = 'html/createAccount.html'
+        self.response.out.write(template.render(path, template_values))
+
     def post(self):
         session = get_current_session()
         team_name = self.request.get('team_name');
@@ -205,8 +202,9 @@ class CreateAccount(webapp2.RequestHandler):
         
 class WelcomePage(webapp2.RequestHandler):
     def get(self):
-        template = JINJA_ENVIRONMENT.get_template('html/welcomepage.html')
-        self.response.write(template.render())
+        template_values = {}
+        path = 'html/welcomepage.html'
+        self.response.out.write(template.render(path, template_values))
         
 class deleteProfiles(webapp2.RequestHandler):
     def get(self):

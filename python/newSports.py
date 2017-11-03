@@ -6,7 +6,6 @@ import time
 
 # Web Stuff
 ##########
-import jinja2
 import json 
 import webapp2
 
@@ -34,10 +33,12 @@ class ncbPage(webapp2.RequestHandler):
         serialized = json.dumps(dates_arr, sort_keys=True, skipkeys=False, 
                                 indent=2, separators=(',', ': '))
 
-        print serialized
+        template_values = {
+            'rah': serialized
+        }
+        path = 'html/display_ncb.html'
+        self.response.out.write(template.render(path, template_values))
 
-        template = JINJA_ENVIRONMENT.get_template('html/display_ncb.html')
-        self.response.write(template.render(rah=serialized))  
 
 class mlbPage(webapp2.RequestHandler):
     def get(self):
@@ -47,15 +48,18 @@ class mlbPage(webapp2.RequestHandler):
         serialized = json.dumps(dates_arr, sort_keys=True, skipkeys=False, 
                                 indent=2, separators=(',', ': '))
 
-        print serialized
-
-        template = JINJA_ENVIRONMENT.get_template('html/display_mlb.html')
-        self.response.write(template.render(rah=serialized))  
+        template_values = {
+            'rah': serialized
+        }
+        path = 'html/display_mlb.html'
+        self.response.out.write(template.render(path, template_values))
 
 class nflPage(webapp2.RequestHandler):
     def get(self):
-        template = JINJA_ENVIRONMENT.get_template('html/import_nfl.html')
-        self.response.write(template.render())
+        template_values = {}
+        path = 'html/import_nfl.html'
+        self.response.out.write(template.render(path, template_values))
+
         
     def post(self):     # Will receive ajax of bet placed
         pick_json = self.request.body

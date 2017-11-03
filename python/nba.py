@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-import os 
 import time
-
 
 # Web Stuff
 ##########
@@ -16,8 +14,6 @@ from gAccounts import *
 
 # Google Stuff 
 ##########
-from google.appengine.ext import ndb
-from google.appengine.api import users
 from google.appengine.ext.webapp import template
 
 # Session Stuff
@@ -27,17 +23,17 @@ from gaesessions import get_current_session
 
 class nbaPage(webapp2.RequestHandler):
     def get(self):
-        '''
         sp = sport_parser()
         dates_arr = sp.parseXML('NBA')
-
         serialized = json.dumps(dates_arr, sort_keys=True, skipkeys=False, 
                                 indent=2, separators=(',', ': '))
+        template_values = {
+            'rah': serialized
+        }
+        path = 'html/display_nba.html'
+        self.response.out.write(template.render(path, template_values))
 
-
-        template = JINJA_ENVIRONMENT.get_template('html/display_nba.html')
-        self.response.write(template.render(rah=serialized))   
-        '''
+        
         
     def post(self):
         pick_json = self.request.body
