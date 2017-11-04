@@ -70,6 +70,8 @@ def user_exists(email):
         if email == account.m_email:
             return account
     return None
+
+
 def team_name_exists(team_name):
     flyer_accounts = mUserStats.query()
     for account in flyer_accounts:
@@ -77,7 +79,7 @@ def team_name_exists(team_name):
         if team_name == account.m_team_name:
             return True
     return False
-    
+
 
 def login_status():
     ls = {}
@@ -100,6 +102,7 @@ def login_status():
         ls['flyer_status'] = False
     
     return ls
+
 
 class AuthenticationHandler(webapp2.RequestHandler):
     def post(self):

@@ -15,8 +15,7 @@ handlers:
   static_dir: scripts
 
 - url: /.*
-  script: python/main.py
-  login: required
+  script: main.app
   
 
 libraries:
