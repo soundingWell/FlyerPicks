@@ -1,15 +1,9 @@
 import time
 
-# Google Stuff 
-##########
-#from google.appengine.ext import ndb
+# Google
 from google.appengine.api import background_thread
-from google.appengine.ext import ndb
-from google.appengine.api import users
-#from google.appengine.api import users
 
-# My Stuff
-##########
+# Flyer
 from mUser import mUserStats
 from get_results import result_parser
 

@@ -1,15 +1,14 @@
 #!/usr/bin/python
 
-# Builtin
+# Third Party
 import webapp2
 import sys
 sys.path.append('python/')
 
-# My Stuff
+# Flyer
 from updateAccounts import updateAccounts
 from nhl import nhlPage
 from nba import nbaPage
-from newSports import nflPage
 from newSports import ncbPage
 from newSports import mlbPage
 from flyer_profile import profilePage
@@ -75,7 +74,6 @@ app = webapp2.WSGIApplication([
                                        ('/createAccount', CreateAccount),
                                        ('/profile', profilePage),
                                        ('/showAllProfiles', showAllProfilesPage),
-                                       ('/nfl', nflPage),
                                        ('/nhl', nhlPage),
                                        ('/nba', nbaPage),
                                        ('/mlb', mlbPage),

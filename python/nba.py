@@ -1,61 +1,49 @@
 #!/usr/bin/python
 
-import time
-
-# Web Stuff
-##########
+# Builtin
 import json 
 import webapp2
 
-# My Stuff
-##########
+# Flyer
 from sport import sport_parser
-from gAccounts import *
 
-# Google Stuff 
-##########
+# Google
 from google.appengine.ext.webapp import template
 
-# Session Stuff
-##########
+# Third Party
 from gaesessions import get_current_session
-##########
 
 class nbaPage(webapp2.RequestHandler):
     def get(self):
         sp = sport_parser()
         dates_arr = sp.parseXML('NBA')
-        serialized = json.dumps(dates_arr, sort_keys=True, skipkeys=False, 
-                                indent=2, separators=(',', ': '))
+        open_bets_serialized = json.dumps(dates_arr, sort_keys=True, skipkeys=False, 
+                                          indent=2, separators=(',', ': '))
         template_values = {
-            'rah': serialized
+            'bet_data': open_bets_serialized
         }
         path = 'html/display_nba.html'
         self.response.out.write(template.render(path, template_values))
 
+    
+    def add_bet(self, curr_user, pick_data):
+        curr_user.add_bet(pick=pick_data['pick'],
+                          odds_spread=pick_data['odds'],
+                          event_id=pick_data['event_id'],
+                          bet_amount=pick_data['bet_amt'],
+                          bet_type=pick_data['bet_type'])
         
-        
-    def post(self):
-        pick_json = self.request.body
-        pick_py = json.loads(pick_json)
-        print pick_py 
-        
+    # TODO: move this somewhere to share with other sports.
+    def post(self):                
         session = get_current_session()
         if (session.has_key('me')):
-            #user_key = mUserStats_key(session['me'].m_email)
-            #curr_user = mUserStats.get_by_id(session['me'].m_email, user_key)
             curr_user = session['me']
-            curr_user.add_bet(pick_py['pick'], pick_py['odds'], pick_py['event_id'], pick_py['bet_amt'], pick_py['bet_type'])
-            
-            #curr_user.key.delete()
-            print "NBA bet successfully added"
+            pick_data = json.loads(self.request.body)
+            self.add_bet(curr_user, pick_data)
             curr_user.put()
-            session['me'] = curr_user 
-            self.redirect('/profile') 
-
-            # time.sleep(0.1)
-            #session['me'] = curr_user
+            
+            # Update the session.
+            session['me'] = curr_user
             
         else: 
-            print 'session failure'
             self.redirect('/login')

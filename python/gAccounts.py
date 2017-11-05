@@ -1,54 +1,22 @@
 #!/usr/bin/python
 
-import os
-
-# My Stuff
-##########
+# Flyer
 from mUser import mUserStats
 
-# Google Stuff 
-##########
+# Google 
 from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 
-#from apiclient.discovery import build
-#import httplib2
-
-from oauth2client import client, crypt 
-##########
-
-# Web Stuff
-##########
+# Builtin
 import webapp2
-from webapp2 import Response
-##########
 
-# Session Stuff
-##########
+# Third party
 from gaesessions import get_current_session
-##########
-
-#Python 
-import time
-import random
-import string 
-
-import json
-
-providers = {
-    'Google'   : 'https://www.google.com/accounts/o8/id'
-    }
-
-valid_emails = { 
-    'Ian' : 'i.heinz',
-    'AK' : 'a.k'
-    }
+from oauth2client import client, crypt 
 
 
-DEFAULT_NICKNAME= "no_name"
-
-def mUserStats_key(userEmail=DEFAULT_NICKNAME):
+def mUserStats_key(userEmail="no_name"):
     """Constructs a Datastore key for a user entity with user email."""
     return ndb.Key('mUserStats', userEmail)
 
@@ -149,10 +117,8 @@ class AuthenticationHandler(webapp2.RequestHandler):
             print 'bad token'
         userid = idinfo['sub']
         '''
-        
-        template_values = None;
-        path = os.path.join(os.path.dirname(__file__), 'html/authenticated.html')
-        self.response.out.write(template.render(path, template_values));
+        path = 'html/authenticated.html'
+        self.response.out.write(template.render(path, None))
         '''
  
 def checkDuplicateTeamName(team_name):

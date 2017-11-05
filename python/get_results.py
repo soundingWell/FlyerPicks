@@ -1,3 +1,4 @@
+# Builtin
 import xml.etree.cElementTree as etree
 import urllib2
 
@@ -11,7 +12,6 @@ sport_dict = {'NHL' : 'http://sportsfeeds.bovada.lv/basic/NHL.xml',
               
 
 class result_parser():
-    
     def get_results(self, sport):
         xmlFile = sport_dict[sport]
         theFile = urllib2.urlopen(xmlFile)
