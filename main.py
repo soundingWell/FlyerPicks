@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 ### Basics ###
+import os
 import sys
+import time
 sys.path.append('python/')
 
 # My Stuff
@@ -70,50 +72,38 @@ class AboutHandler(webapp2.RequestHandler):
         template_values = {}
         path = 'html/login.html'
         self.response.out.write(template.render(path, template_values))
-        
+
+
 class MainPage(webapp2.RequestHandler):
     def handle_account(self, gae_status, flyer_status):
         session = get_current_session()
         
         # No Google account
         if not gae_status:
-            print 'Going to GOOGLE BRB'
+            print 'Forcing google login'
             self.redirect(users.create_login_url(self.request.uri))
-            print 'back'
-        # First time at Flyer
+
+        # Have Google Account, but first time at Flyer
         elif gae_status and not flyer_status:
+            print 'asking them to make an account.'
+            print str(gae_status)
             self.redirect('/createAccount')
+
         # Good to go. 
         else:
             gae_user = users.get_current_user()
             print gae_user.email()
-            curr_user = user_exists(gae_user.email())
+            curr_user = is_email_in_our_db(gae_user.email())
             if curr_user:
                 print 'session started'
                 session['me'] = curr_user
             if not curr_user:
                 print 'couldnt find user' 
                 
-            
         
     def get(self):
-        '''
-        self.response.write("bad")
         ls = login_status()
         self.handle_account(ls['gae_status'], ls['flyer_status'])
-        
-        print 'flyer_status: ' + str(ls['flyer_status'])
-        print 'gae_status: ' + str(ls['gae_status'])
-        if ls['gae_status']: 
-            template_values = {
-                'flyer_status': ls['flyer_status'],
-                'gae_status': ls['gae_status']
-            }
-            path = 'html/basicHomePage.html'
-            self.response.out.write(template.render(path, template_values))
-        else:
-            self.redirect('/createAccount')
-        '''
         template_values = {
                 'flyer_status': False,
                 'gae_status': False
@@ -125,10 +115,10 @@ class MainPage(webapp2.RequestHandler):
         # The user hit logout. They need to login. 
         self.redirect(users.create_logout_url("/"))
         
-
-class Profile(webapp2.RequestHandler):
+class ShowAllProfiles(webapp2.RequestHandler):
     def get(self):
-        print 'at profileeeeeeeeeeee'
+        # Wait for database to update if a bet was just entered.
+        time.sleep(0.2)
         session = get_current_session()
         gprofiles = mUserStats.query()
         profile_counter = 0 
@@ -145,7 +135,15 @@ class Profile(webapp2.RequestHandler):
                             '<b> odds: </b> ' + str(bet.odds) + 
                             '<b> amount: $</b>' + str(bet.bet_amount) +  '<br />') 
             profile_counter += 1
-        '''
+
+
+class Profile(webapp2.RequestHandler):
+    # This lists the current user's profile.
+    def get(self):
+        # Wait for database to update if a bet was just entered.
+        time.sleep(0.2)
+        session = get_current_session()
+        gprofiles = mUserStats.query()
         for one_user in gprofiles:
             if one_user.m_email == session['me'].m_email:
                 session['me'] = one_user
@@ -178,7 +176,6 @@ class Profile(webapp2.RequestHandler):
             
         else:
             redirect_with_msg(self, 'Not logged in', '/login')
-        '''
 
     
     def post(self):
@@ -192,26 +189,31 @@ class Profile(webapp2.RequestHandler):
         else:
             self.response.write('ERROR')
             
+
+# This is supposed to to start a thread that will check on the status 
+# of games at a regular interval and update accounts as games finish.
+# I'm scared to run it as of now because it's not working right.
 class startChecking(webapp2.RequestHandler):
     def get(self):
-        ua = updateAccounts()
-        ua.start_thread() 
+        print 'dont do anything'
+        #ua = updateAccounts()
+        #ua.start_thread() 
 
 app = webapp2.WSGIApplication([
                                        ('/', MainPage),
                                        ('/about', AboutHandler),
-                                       ('/login', LoginPage),
                                        ('/logout', LogoutHandler),
                                        ('/authenticated', AuthenticationHandler),
                                        ('/resetpassword', LogoutAuth),
                                        ('/deleteProfiles', deleteProfiles),
                                        ('/createAccount', CreateAccount),
                                        ('/profile', Profile),
+                                       ('/showAllProfiles', ShowAllProfiles),
                                        ('/nfl', nflPage),
                                        ('/nhl', nhlPage),
                                        ('/nba', nbaPage),
                                        ('/mlb', mlbPage),
+                                       ('/ncb', ncbPage),
                                        ('/startChecking', startChecking),
-                                       ('/ncb', ncbPage)
                                        ], debug=True)
  

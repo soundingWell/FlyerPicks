@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import logging
-
 # Web Stuff
 ##########
 import json 
@@ -32,20 +30,23 @@ class nhlPage(webapp2.RequestHandler):
         path = 'html/display_nhl.html'
         self.response.out.write(template.render(path, template_values))
 
+    def add_bet(self, curr_user, pick_data):
+        curr_user.add_bet(pick=pick_data['pick'],
+                          odds_spread=pick_data['odds'],
+                          event_id=pick_data['event_id'],
+                          bet_amount=pick_data['bet_amt'],
+                          bet_type=pick_data['bet_type'])
+        
            
-    def post(self):
-        pick_json = self.request.body
-        pick_py = json.loads(pick_json)
-        print 'bet: ' + str(pick_py)
-        
-        pick = pick_py['pick']
-        spread = pick_py['odds']
-        bet_amount = pick_py['bet_amount'] 
+    def post(self):                
         session = get_current_session()
-        
         if (session.has_key('me')):
             curr_user = session['me']
-            curr_user.add_bet(pick, spread, bet_amount)
+            pick_data = json.loads(self.request.body)
+            self.add_bet(curr_user, pick_data)
+            curr_user.put()
+            
+            # Update the session.
             session['me'] = curr_user
             
         else: 

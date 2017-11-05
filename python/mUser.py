@@ -1,8 +1,9 @@
 from bet import bet
-import time
 
 from google.appengine.ext import ndb
 
+AGAINST_THE_SPREAD = "ats"
+MONEYLINE = "moneyline"
 
 def extract_spread(odds_spread):
     open_p  = odds_spread.find('(')
@@ -35,8 +36,9 @@ def is_half(odds_spread):
         i += 1
     return False
 
+# Has half refers to the 1/2 symbol.
 def convert_oddspread(odds, has_half, if_spread):
-    odds_fixed = odds.encode("ascii","ignore")
+    odds_fixed = odds.encode("ascii", "ignore")
  
     # If the original was - 
     if (odds[0] == '-'):   
@@ -64,51 +66,58 @@ class mUser(ndb.Model):
     m_nickName = ndb.StringProperty(indexed=False)
     m_betsWon = ndb.IntegerProperty(indexed=False)
     
+
+# Inherits from mUser. This is what we actually store.
 class mUserStats(mUser, ndb.Model):
     m_betsMade = ndb.IntegerProperty(indexed=False)
     m_betsWon = ndb.IntegerProperty(indexed=False)
     m_balance = ndb.FloatProperty(indexed=False)
     m_currBets = ndb.PickleProperty(indexed=False)
     m_pastBets = ndb.PickleProperty(indexed=False)
-    
+
+
     # odds_spread is just odds if moneyline, if ats, then odds/spread must be extracted
     def add_bet(self, pick, odds_spread, event_id, bet_amount, bet_type):
         # Add bet to dictionary 
         print 'event id: ' + event_id
         print 'pick: ' + pick
-        if bet_type == "ats":
-
+        print 'bet type: ' + bet_type
+        if bet_type == AGAINST_THE_SPREAD:
             has_half = is_half(odds_spread)
-
             odds = extract_odds(odds_spread)
             spread = extract_spread(odds_spread)
             
-            odds = convert_oddspread(odds, False, False)
-            spread = convert_oddspread(spread, has_half, True)
+            # TODO: figure out a way to do this without_calling this twice.
+            odds = convert_oddspread(odds, has_half=False, if_spread=False)
+            spread = convert_oddspread(spread, has_half, if_spread=True)
             print 'converted odds: ' + str(odds)
             print 'converted spread: ' + str(spread)
             
+            # If you haven't made a bet on this event yet, add this to the
+            # dictionary of events. You add a list because you can have multiple
+            # bets on an event.
             if event_id not in self.m_currBets:
                 self.m_currBets[event_id] = []
-            self.m_currBets[event_id].append(bet(pick, odds, float(bet_amount), spread))
 
+            self.m_currBets[event_id].append(bet(pick, odds, float(bet_amount), spread))
         else: 
-            odds = convert_oddspread(odds_spread, False, False)
+            odds = convert_oddspread(odds_spread, has_half=False, if_spread=False)
             if  event_id not in self.m_currBets:
                 self.m_currBets[event_id] = []
             self.m_currBets[event_id].append(bet(pick, odds, float(bet_amount), 0))
             
         self.m_betsMade += 1
         self.m_balance -= float(bet_amount)
-        
+    
+
     def find_competitor(self, bet, scores_dict):
         for pick in scores_dict:
             if pick != bet.pick:
                 return pick 
         return None
+    
 
     def resolve_moneyline(self, bet, scores_dict):
-        
         competitor = self.find_competitor(bet, scores_dict)
         
         # Loss
@@ -120,11 +129,12 @@ class mUserStats(mUser, ndb.Model):
         # Push
         return "PUSH"
         
+
     def resolve_ats(self, bet, scores_dict):
         competitor = self.find_competitor(bet, scores_dict)
         
-        print 'US: ' + str(scores_dict[bet.pick])
-        print 'THEM: ' + str(scores_dict[competitor])
+        print 'User Pick: ' + str(scores_dict[bet.pick])
+        print 'Opponent: ' + str(scores_dict[competitor])
         # Loss
         if (int(scores_dict[bet.pick]) + bet.spread) < int(scores_dict[competitor]):
             return "LOSS"
@@ -134,15 +144,13 @@ class mUserStats(mUser, ndb.Model):
         # Push
         return "PUSH"
     
+
     def resolve_bet(self, scores_dict, event_id, bet, bet_num):
         print "RESOLVE: " + bet.pick + ' ' + str(event_id)
-        
         result = "LOSS"
         if bet.bet_type == "Moneyline":
-            print "Moneyline Resolve"
             result = self.resolve_moneyline(bet, scores_dict)
         else:
-            print "ATS Resolve"
             result = self.resolve_ats(bet, scores_dict)
         bet.outcome = result
         
@@ -170,7 +178,3 @@ class mUserStats(mUser, ndb.Model):
             bet_num += 1
         del self.m_currBets[event_id]
             
-        
-        
-        
-        

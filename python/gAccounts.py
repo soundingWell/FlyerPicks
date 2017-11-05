@@ -51,19 +51,14 @@ DEFAULT_NICKNAME= "no_name"
 def mUserStats_key(userEmail=DEFAULT_NICKNAME):
     """Constructs a Datastore key for a user entity with user email."""
     return ndb.Key('mUserStats', userEmail)
+
    
 def redirect_with_msg(h, msg, dst='/'):
     get_current_session()['msg'] = msg
     h.redirect(dst)
     
-def user_exists(email):
-    '''
-    gae_user = users.get_current_user()
-    # Searches database by email. 
-    userDB_key = mUserStats_key(gae_user.email())
-    curr_user = mUserStats.get_by_id(gae_user.email(), userDB_key)
-    return curr_user
-    '''
+
+def is_email_in_our_db(email):
     flyer_accounts = mUserStats.query()
     for account in flyer_accounts:
         print 'email: ' + str(account.m_email)
@@ -75,7 +70,6 @@ def user_exists(email):
 def team_name_exists(team_name):
     flyer_accounts = mUserStats.query()
     for account in flyer_accounts:
-        print 'team name: ' + str(account.m_team_name)
         if team_name == account.m_team_name:
             return True
     return False
@@ -91,7 +85,7 @@ def login_status():
     
     if gae_user: 
         print 'email: ' + gae_user.email()
-        curr_user = user_exists(gae_user.email())
+        curr_user = is_email_in_our_db(gae_user.email())
         if curr_user:
             if not session:
                 session['curr_user'] = curr_user
@@ -167,46 +161,50 @@ def checkDuplicateTeamName(team_name):
 
 class CreateAccount(webapp2.RequestHandler):
     def get(self):
-        template_values = {}
-        path = 'html/createAccount.html'
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('html/createAccount.html', {}))
 
+    def add_new_user_to_db(self, gae_user, team_name):
+        print 'email: ' + str(gae_user.email())
+        new_user = mUserStats(m_team_name = team_name, 
+                              m_email = gae_user.email(),
+                              m_betsMade = 0, 
+                              m_betsWon = 0, 
+                              m_balance = 2000,
+                              m_currBets = {},
+                              m_pastBets = {})
+        new_user.put() 
+        print 'successfully added to db'
+        return new_user
+
+    # User has attempted to make a new account.
+    # Right now you can only have 1 team per email.
     def post(self):
         session = get_current_session()
         team_name = self.request.get('team_name');
+        print 'team name: ' + str(team_name)
         gae_user = users.get_current_user()
-        curr_user = user_exists(gae_user.email())
-        # Not logged in.
+        
+        # Not logged into google.
         if not gae_user:
-            print 'NO GAE USER'
+            print 'Not logged into Google'
             self.redirect(users.create_login_url())
-        # This Google acct already exists.
-        elif user_exists(gae_user.email()):
+
+        # This Google account already exists.
+        elif is_email_in_our_db(gae_user.email()):
             print 'User already has account'
             self.redirect('/')
-        # Make new user
+
+        
         elif team_name_exists(team_name):
             redirect_with_msg(self, "taken", '/createAccount')
-        else: 
-            new_user = mUserStats(m_team_name = team_name, 
-                                  m_email = gae_user.email(),
-                                  m_betsMade = 0, 
-                                  m_betsWon = 0, 
-                                  m_balance = 2000,
-                                  m_currBets = {},
-                                  m_pastBets = {})
-            print 'start-session'
-            session['me'] = new_user
-            new_user.put()
-            
-            print 'successfully added to db'
-        self.redirect('/profile')
         
-class WelcomePage(webapp2.RequestHandler):
-    def get(self):
-        template_values = {}
-        path = 'html/welcomepage.html'
-        self.response.out.write(template.render(path, template_values))
+        # Make new user
+        else: 
+            new_user = self.add_new_user_to_db(gae_user, team_name)
+            session['me'] = new_user
+            
+        self.redirect('/profile')
+
         
 class deleteProfiles(webapp2.RequestHandler):
     def get(self):
@@ -223,9 +221,6 @@ class deleteProfiles(webapp2.RequestHandler):
             
         self.response.out.write(str(pcount) + " profiles deleted.")
 
-class LoginPage(webapp2.RequestHandler):
-    def get(self):
-        print 'login page'
  
 class LogoutHandler(webapp2.RequestHandler):
     def get(self):

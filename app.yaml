@@ -22,9 +22,6 @@ libraries:
 - name: webapp2
   version: latest
 - name: pycrypto
-  version: "latest"
+  version: latest
 - name: ssl
   version: latest  
-
-
-

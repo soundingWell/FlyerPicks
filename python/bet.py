@@ -2,7 +2,6 @@
 
 DEFAULT_ODDS = 10.0/11
 
-    
 def odds_us_to_mult(odds_us):
     if odds_us < 0:
         return -100.0 / odds_us
