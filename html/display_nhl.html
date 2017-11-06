@@ -44,14 +44,10 @@
     }
     
      var send_pick = function(jBet_dict, bet_amt) {
-        // var pick_json = JSON.stringify({pick: pick, spread: spread, bet_amount: bet_amount});
-        // window.console.log('bet amt' + bet_amt);
         var bet_dict = JSON.parse(jBet_dict);
         bet_dict['bet_amt'] = bet_amt;
 
-        
         jBet_dict = JSON.stringify(bet_dict);
-        
         $.ajax({
             type: "POST",
             url: "/nhl",

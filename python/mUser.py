@@ -64,7 +64,6 @@ class mUser(ndb.Model):
     m_email = ndb.StringProperty(indexed=True)
     m_team_name = ndb.StringProperty(indexed=True)
     m_nickName = ndb.StringProperty(indexed=False)
-    m_betsWon = ndb.IntegerProperty(indexed=False)
     
 
 # Inherits from mUser. This is what we actually store.

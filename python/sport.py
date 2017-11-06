@@ -30,9 +30,7 @@ def make_line(line_elem, event_dict, k):
     return None
 
 class sport_parser():
-    
     def parseXML(self, sport):
-     
         xmlFile = sport_dict[sport]
         theFile = urllib2.urlopen(xmlFile)
         xml = theFile.read()
@@ -85,5 +83,6 @@ class sport_parser():
 
                     j+=1
                 i+=1
+        print str(main_dict)
         return main_dict      
 

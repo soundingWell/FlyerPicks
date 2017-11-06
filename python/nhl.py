@@ -28,6 +28,7 @@ class nhlPage(webapp2.RequestHandler):
 
     
     def add_bet(self, curr_user, pick_data):
+        print str(pick_data)
         curr_user.add_bet(pick=pick_data['pick'],
                           odds_spread=pick_data['odds'],
                           event_id=pick_data['event_id'],
